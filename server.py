@@ -84,15 +84,10 @@ def login(action, u):
 @app.route("/kard-api/fetch/<data>", methods=['GET'])
 @get_logged_user
 def fetch(data, u):
+	""" fetch SHALL AND CAN ONLY BE USED TO GET ONE INFO AT A TIME """
 	r = u.fetch(data)
 	return r
 
-
-
-@app.route("/foo")
-def bar():
-	uuid = request.headers.get('k-device-uuid')
-	auth_token = request.headers.get('k-authorization-token')
 
 
 if __name__ == "__main__":

@@ -14,8 +14,19 @@ class KardCustomApi:
 		self.s = requests.Session()
 		self.payloads = {
 			"fetch": {
+				"username": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { username }}","variables":{},"extensions":{}},
 				"firstname": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { firstName }}","variables":{},"extensions":{}},
-				"lastname": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { lastName }}","variables":{},"extensions":{}}
+				"lastname": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { lastName }}","variables":{},"extensions":{}},
+				"age": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { age }}","variables":{},"extensions":{}},
+				"birth-date": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { birthday }}","variables":{},"extensions":{}},
+				"birth-place": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { placeOfBirth }}","variables":{},"extensions":{}},
+				"adress": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { shippingAddress { fullAddress } }}","variables":{},"extensions":{}},
+				"email": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { email }","variables":{},"extensions":{}},
+				"tel": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { phoneNumber }","variables":{},"extensions":{}},
+				"acc-type": {"query": "query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { type }","variables": {},"extensions": {}},
+				"subscription-status": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { subscription { status } }","variables":{},"extensions":{}},
+				"subscription-price": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { subscription { plan { price { value }} } }","variables":{},"extensions":{}}
+
 			}
 		}
 
@@ -46,7 +57,7 @@ class KardCustomApi:
 		if self.AUTH_TOKEN:
 			self.force_login()
 
-	def force_login(self):
+	def force_login(self) -> None:
 		self.s.headers = self.LOGGED_HEADERS
 
 
@@ -114,11 +125,23 @@ class KardCustomApi:
 			return {"status": 0, "error": None, "data": {"token": self.AUTH_TOKEN}}
 
 
-	def fetch(self, data_to_fetch):
+	def fetch(self, data_to_fetch: str) -> dict:
 		payload = self.payloads['fetch'][data_to_fetch]
-		data = self.s.post(self.API_URL, json=payload).json()['data']
+		data = self.s.post(self.API_URL, json=payload).json()
 
-		return {"status": 0, "error": None, "data": {"fetched": data['me']['profile']['firstName']}}
+		# More elegant solution
+		# than parsing the payload to know which key we requested?
+		def flatten(dict_, base=()):
+			for k in dict_:
+				if isinstance(dict_[k], dict):
+					return flatten(dict_[k], base+(k,))
+				else:
+					return (base + (k, dict_[k]))
+
+		return {"status": 0, "error": None, "data": {"fetched": flatten(data)[-1]}}
+
+
+
 
 # TODO: refacto of https://github.com/ghrlt/kard-private-api
 
