@@ -1,0 +1,89 @@
+body {
+	background: rgb(120,0,240);
+	background: linear-gradient(180deg, rgba(102,0,203,1) 0%, rgba(115,0,230,1) 20%, rgba(120,0,240,1) 50%, rgba(186,117,255,1) 95%);
+	color: white;
+	margin: 0;
+
+	height: 100vh;
+}
+
+
+.kard-text {
+	font-family: Poppins, sans-serif;
+	font-size: 1.3em;
+	text-align: center;
+}
+
+#logo {
+	width: auto;
+	height: 25vh;
+}
+
+
+
+.-centered {
+    display: flex;
+    justify-content: center!important;
+}
+
+.text-error {
+    color:  var(--bs-danger);
+}
+.text-disabled {
+    color: var(--color-white-disabled);
+}
+
+.row-no-gutter {
+    --bs-gutter-x: 0!important;
+}
+.row-no-margin {
+	margin-right: 0!important;
+	margin-left: 0!important;
+	margin-top: 0!important;
+}
+
+.fa-1_5x {
+    font-size: 1.5em;
+}
+
+
+/* Adapted from https://stackoverflow.com/a/26186450 */
+.striked {
+  text-decoration: none;
+
+  position: relative;
+  display: inline-block;
+}
+.striked:after {
+  content: "";
+
+  position: absolute;
+  bottom: 0;
+  left: 5%;
+  border-top: 1px solid red;
+
+  height: 45%;
+  height: calc(50% - 1px); /* Not compatible with IE 8 */
+  width: 98%;
+  transform: rotateZ(-15deg);
+}
+
+
+@media only screen and (max-width: 576px) {
+	.hide-on-mobile {
+		display: none;
+	}
+}
+
+
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
