@@ -1,16 +1,99 @@
 from flask import Flask, request, render_template, redirect, abort, url_for, Response
+from functools import wraps
 import requests as req
 
 from kardapi import KardCustomApi
 
 
 app = Flask("KardWeb")
-Kard = KardCustomApi()
 
+
+USERS = {}
+
+
+
+def get_user(f):
+	@wraps(f)
+	def wrapper(*args, **kwargs):
+		uuid = request.headers.get('k-device-uuid')
+		if not uuid:
+			return abort(403)
+
+		if not uuid in USERS:
+			USERS[uuid] = KardCustomApi("KardWeb github.com/ghrlt", uuid)
+
+		return f(*args, **kwargs, u=USERS[uuid])
+
+	return wrapper
+
+def get_logged_user(f):
+	@wraps(f)
+	def wrapper(*args, **kwargs):
+		uuid = request.headers.get('k-device-uuid')
+		token = request.headers.get('k-authorization-token')
+		if not uuid or not token:
+			return abort(401)
+
+		if not uuid in USERS:
+			USERS[uuid] = KardCustomApi("KardWeb github.com/ghrlt", uuid, token)
+
+		return f(*args, **kwargs, u=USERS[uuid])
+
+	return wrapper
 
 @app.route("/")
 def home():
 	return render_template("index.html")
+
+@app.route("/dashboard")
+def dashboard():
+	return render_template("dashboard.html")
+
+@app.route("/login/<action>", methods=['POST'])
+@get_user
+def login(action, u):
+	phone = request.values.get('tel')
+	otp = request.values.get('otp')
+	pin = request.values.get('pin')
+
+	if not phone:
+		return {"status": -1, "error": "Invalid request. Phone Number is missing!"}
+
+
+	if action == "request-otp":
+		r = u.login(phone)
+		return r
+
+	elif action == "confirm-otp":
+		if not otp:
+			return {"status": -1, "error": "Invalid request. OTP is missing!"}
+
+		r = u.login(phone, otp=otp)
+		return r
+
+	elif action == "confirm-pin":
+		if not pin:
+			return {"status": -1, "error": "Invalid request. PIN is missing!"}
+
+		r = u.login(phone, pin=pin)
+		return r
+
+
+	return abort(404)
+
+@app.route("/kard-api/fetch/<data>", methods=['GET'])
+@get_logged_user
+def fetch(data, u):
+	r = u.fetch(data)
+	return r
+
+
+
+@app.route("/foo")
+def bar():
+	uuid = request.headers.get('k-device-uuid')
+	auth_token = request.headers.get('k-authorization-token')
+
 
 if __name__ == "__main__":
 	app.run(port=80, debug=True)
