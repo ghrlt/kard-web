@@ -25,8 +25,8 @@ class KardCustomApi:
 				"tel": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { phoneNumber }","variables":{},"extensions":{}},
 				"acc-type": {"query": "query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { type }","variables": {},"extensions": {}},
 				"subscription-status": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { subscription { status } }","variables":{},"extensions":{}},
-				"subscription-price": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { subscription { plan { price { value }} } }","variables":{},"extensions":{}}
-
+				"subscription-price": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { subscription { plan { price { value }} } }","variables":{},"extensions":{}},
+				"balance": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { bankAccount { balance { value } }}","variables":{},"extensions":{}}
 			}
 		}
 
@@ -50,7 +50,7 @@ class KardCustomApi:
 			'user-agent': self.USERAGENT,
 			'vendoridentifier': self.UUID,
 			"authorization": "Bearer " + self.AUTH_TOKEN,
-			"accept-language": "en"
+			"accept-language": "fr"
 		}
 
 
@@ -139,6 +139,49 @@ class KardCustomApi:
 					return (base + (k, dict_[k]))
 
 		return {"status": 0, "error": None, "data": {"fetched": flatten(data)[-1]}}
+
+
+
+	def postReq(self, payload, json=True):
+		r = self.s.post(self.API_URL, json=payload)
+		if json:
+			return r.json()
+		return r
+
+	def getFullName(self):
+		payload = {"query": "query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { firstName lastName }}","variables":{},"extensions":{}}
+		r = self.postReq(payload)
+
+		f,l = r['data']['me']['profile'].values()
+
+		return {"status": 0, "data": f+' '+l}
+
+	def getVaults(self):
+		payload = {"query":"query androidListVault { me { vaults { ... Vault_VaultParts } }}\n\nfragment Vault_VaultParts on Vault { id name emoji { name unicode } color goal { value } balance { value } }","variables":{},"extensions":{}}
+		r = self.postReq(payload)
+
+		# ordering by amount
+		vaults = sorted(r['data']['me']['vaults'], key=lambda d: d['balance']['value']) 
+
+		return {"status": 0, "data": {"vaults": vaults}}
+
+	def getTransactions(self, maxi: str|None=None, cursor: str=None):
+		if maxi:
+			try: int(maxi)
+			except ValueError: return {"status": -1, "error": "Wrong value supplied for \"maxi\" argument."}
+
+		# TODO: cursor implementation
+
+		payload = {"query":"query androidTransactions($first: Int, $after: String) { me { typedTransactions(first: $first, after: $after) { pageInfo { endCursor hasNextPage } nodes { __typename id title status visibility amount { value currency { symbol } } category { name color image { url } } processedAt ...on P2pTransaction { triggeredBy { id firstName lastName username avatar { url } } reason } ...on ClosingAccountTransaction { moneyAccount { ... Vault_VaultMiniParts } } ...on InternalTransferTransaction { moneyAccount { ... Vault_VaultMiniParts } } ... on MoneyLinkTransaction { from message } } } typedFriendsTransactions(first: $first, after: $after) { pageInfo { endCursor hasNextPage } nodes { __typename id title category { name image { url } } processedAt user { id firstName lastName username avatar { url } } ...on P2pTransaction { triggeredBy { id firstName lastName username avatar { url } } reason } ...on ClosingAccountTransaction { moneyAccount { ... Vault_VaultMiniParts } } ...on InternalTransferTransaction { moneyAccount { ... Vault_VaultMiniParts } } ... on MoneyLinkTransaction { from message } } } }}\n\nfragment Vault_VaultMiniParts on Vault { name color emoji { name unicode }}","variables":{"numberOfComments": 5,"first": maxi, "after": cursor},"extensions":{}}
+		r = self.postReq(payload)
+
+		return {"status": 0, "error": None, "data": r['data']['me']['typedTransactions']['nodes']}
+
+
+	def getKycStatus(self):
+		payload = ""
+		r = self.postReq(payload)
+
 
 
 

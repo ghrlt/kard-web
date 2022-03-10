@@ -88,6 +88,33 @@ def fetch(data, u):
 	r = u.fetch(data)
 	return r
 
+@app.route("/kard-api/<f>")
+@get_logged_user
+def execFunction(f, u):
+	dic = request.values.get('args')
+	if dic:
+		argsV = ', '.join( list(dic.values()) )
+		if argsV:
+			argsV = '"' + argsV + '"'
+
+		if argsV:
+			for i,key in enumerate(list(dic.keys())):
+				x = argsV.split(", ")
+				x[i] = f"{key}={x[i]}"
+
+				argsV = ', '.join( x )
+	else:
+		argsV = ''.join([])	
+
+	print(argsV)
+	try:
+		r = eval(f"u.{f}({argsV})")
+		print(r)
+		return r
+	except:
+		return {"status": -1, "error": "Unknown path.", "data": None}
+
+
 
 
 if __name__ == "__main__":
