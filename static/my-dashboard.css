@@ -1,0 +1,189 @@
+.kard-box {
+    display: flex;
+    height: 100%;
+
+    padding: 5%;
+
+    border-radius: 32px;
+    background-color: #8126dd;
+    color: #faeaff;
+    box-shadow: 0 8px 32px 0 rgb(234 220 255 / 60%);
+}
+
+.kard-text {
+	color: #fff;
+	font-weight: 400;
+	font-family: Poppins, sans-serif;;
+}
+.kard-xl-title {
+	color: #fff;
+	font-weight: 600;
+	font-family: Poppins, sans-serif;
+
+	font-size: 3vw;
+}
+.kard-title {
+	color: #fff;
+	font-weight: 600;
+	font-family: Poppins, sans-serif;
+}
+
+
+.kard-box#profile {
+	min-height: 5vh;
+}
+
+span#balance {
+	font-weight: 600;
+}
+
+
+.kard-box.vaults {
+}
+
+#newVault-btn {
+	cursor: pointer;
+	background-color: #ffffffe3;
+}
+#newVault-btn:hover {
+	/*background: #fbfbfbe3!important;*/
+	opacity: 0.9;
+}
+
+div.vault {
+	padding: 3%;
+	margin: 2.5%;
+
+	min-width: 175px;
+	width: 175px;
+	
+	border-radius: 8px;
+	border: 1px #181818 solid;
+
+	box-shadow: 1px 2px 5px 0 rgb(31 29 29 / 35%);
+}
+div.vault > div > span {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+div.vault#newVault-btn > div > span {
+	text-overflow: unset;
+	white-space: unset;
+	overflow: unset;
+}
+
+span.vault-emote {
+	font-size: 3rem;
+}
+
+span.vault-in {
+	color: #000;
+	font-weight: 800;
+	font-size: 1rem;
+	font-family: Poppins, sans-serif;
+}
+span.vault-goal {
+	color: #060606;
+	font-weight: 400;
+	font-size: .9rem;
+	font-family: Poppins, sans-serif;
+}
+span.vault-balance-separator {
+	color: #020202;
+	font-weight: 600;
+	font-size: .7rem;
+}
+
+
+
+
+
+.icon-shortcut {
+	font-size: 3.5vw;
+	cursor: pointer;
+	max-width: min-content;
+}
+.icon-shortcut:hover {
+	opacity: 0.9;
+}
+
+
+#selftransactions-btn, #friendstransactions-btn {
+	font-weight: 700;
+	font-size: 3vw;
+
+	cursor: pointer;
+}
+
+#transa-list-btns {
+    border-bottom: 2px #3e007c solid;
+    padding-bottom: 10px;
+}
+#transa-list-btns > div#separator {
+	border-top: 2px #3e007c solid;
+	transform: rotate(90deg) translate(0, calc(50% - 2px));
+}
+
+
+.kard-transaction {
+	min-height: 75px;
+	height: 100px;
+	width: 100%;
+
+	background-color: aliceblue;
+	border-radius: 10px;
+	border: .5px black solid;
+	padding: 4%;
+	margin: 2%;
+
+	display: flex;
+    align-items: center;
+}
+
+
+.kard-transaction-icon {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    color: transparent;
+}
+
+.kard-transaction-text {
+	padding-left: 1.5rem;
+
+	font-family: Poppins, sans-serif;
+	color: var(--bs-gray-900);
+
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.kard-transaction-title {
+	font-size: 2.5vw;
+	font-weight: 600;
+}
+.kard-transaction-subtitle {
+	font-size: 1.8vw;
+	font-weight: 400;
+	color: var(--bs-gray-600);
+}
+
+.kard-transaction-amount {
+	text-align: right;
+	display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+	font-size: 3vw;
+	font-weight: 700;
+}
+
+
+.underlined {
+	background-image: url(/static/imgs/underline.svg);
+    background-position: 50% 90%;
+    /*background-size: 150%;*/
+    background-repeat: no-repeat;
+}

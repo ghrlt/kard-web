@@ -110,6 +110,10 @@ body {
     justify-content: center!important;
 }
 
+.-black {
+	color: #161616!important;
+}
+
 .text-error {
     color:  var(--bs-danger);
 }
@@ -150,6 +154,18 @@ body {
   height: calc(50% - 1px); /* Not compatible with IE 8 */
   width: 98%;
   transform: rotateZ(-15deg);
+}
+
+
+/* Thanks to https://stackoverflow.com/a/4407335 */
+.prevent-select {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }
 
 
