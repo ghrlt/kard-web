@@ -14,6 +14,7 @@ class KardCustomApi:
 		self.s = requests.Session()
 		self.payloads = {
 			"fetch": {
+				"id": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { id }","variables":{},"extensions":{}},
 				"username": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { username }}","variables":{},"extensions":{}},
 				"firstname": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { firstName }}","variables":{},"extensions":{}},
 				"lastname": {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { profile { lastName }}","variables":{},"extensions":{}},
@@ -59,6 +60,8 @@ class KardCustomApi:
 
 	def force_login(self) -> None:
 		self.s.headers = self.LOGGED_HEADERS
+
+		self.user_id = self.fetch('id')['data']['fetched']
 
 
 	def login(self, phone_number: str, otp: str=None, pin: str=None) -> dict:
@@ -122,6 +125,9 @@ class KardCustomApi:
 			self.AUTH_TOKEN = data['data']['signIn']['accessToken']
 			self.LOGGED_HEADERS['authorization'] = f"Bearer {self.AUTH_TOKEN}"
 			self.s.headers = self.LOGGED_HEADERS
+
+			self.user_id = self.fetch('id')['data']['fetched']
+
 			return {"status": 0, "error": None, "data": {"token": self.AUTH_TOKEN}}
 
 
@@ -165,9 +171,9 @@ class KardCustomApi:
 
 		return {"status": 0, "data": {"vaults": vaults}}
 
-	def getTransactions(self, maxi: str|None=None, cursor: str=None):
+	def getTransactions(self, maxi: str|int=100, cursor: str=None):
 		if maxi:
-			try: int(maxi)
+			try: maxi = int(maxi)
 			except ValueError: return {"status": -1, "error": "Wrong value supplied for \"maxi\" argument."}
 
 		# TODO: cursor implementation
@@ -176,7 +182,36 @@ class KardCustomApi:
 		r = self.postReq(payload)
 
 		return {"status": 0, "error": None, "data": r['data']['me']['typedTransactions']['nodes']}
+	
+	def getLimits(self):
 
+		p1 = {"query": "query androidGetSpendingLimit { me { family { memberships { member { id transactionLimits { id amount { value currency { symbol } } recurrence transactionType } } } } }}","variables": {},"extensions": {}}
+		p2 = {"query": "query androidGetTransactionAuthorization { me { family { memberships { member { id transactionAuthorizations { authorizationType isAuthorized } } } } }}","variables": {},"extensions": {}}
+		p3 = {"query": "query androidGetSpendingLimit { me { family { memberships { member { id currentSpendings { monthlyPos { value } weeklyPos { value } weeklyAtm { value } monthlyAtm { value } } } } } }}","variables": {},"extensions": {}}
+		p4 = {"query": "query androidGetLegalSpendingLimit { me { family { memberships { member { id legalSpendingLimits { monthlyPos { value } weeklyPos { value } weeklyAtm { value } monthlyAtm { value } } } } } }}","variables": {},"extensions": {}}
+
+		# Tried to make them fit in one request, unable to do so I guess?
+		r1 = self.postReq(p1)['data']
+		r2 = self.postReq(p2)['data']
+		r3 = self.postReq(p3)['data']
+		r4 = self.postReq(p4)['data']
+
+
+		r = {
+			"authorization": r2['me']['family']['memberships'],
+			"spendable": r1['me']['family']['memberships'],
+			"spent": r3['me']['family']['memberships'],
+			"legal": r4['me']['family']['memberships']
+		}
+
+		r['me'] = [r['authorization'][i] for i in range(len(r['authorization'])) if r['authorization'][i]['member']['id'] == self.user_id]
+		r['me'] += [r['spendable'][i] for i in range(len(r['spendable'])) if r['spendable'][i]['member']['id'] == self.user_id]
+		r['me'] += [r['spent'][i] for i in range(len(r['spent'])) if r['spent'][i]['member']['id'] == self.user_id]
+		r['me'] += [r['legal'][i] for i in range(len(r['legal'])) if r['legal'][i]['member']['id'] == self.user_id]
+
+		r = r['me'][0]['member'] | r['me'][1]['member'] | r['me'][2]['member'] | r['me'][3]['member']
+
+		return {"status": 0, "error": None, "data": r}
 
 	def getKycStatus(self):
 		payload = ""

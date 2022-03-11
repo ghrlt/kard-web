@@ -60,6 +60,8 @@ div.vault {
 	border-radius: 8px;
 	border: 1px #181818 solid;
 
+	position: relative;
+
 	box-shadow: 1px 2px 5px 0 rgb(31 29 29 / 35%);
 }
 div.vault > div > span {
@@ -161,7 +163,7 @@ span.vault-balance-separator {
 	overflow: hidden;
 }
 .kard-transaction-title {
-	font-size: 2.5vw;
+	font-size: 2.3855vw;
 	font-weight: 600;
 }
 .kard-transaction-subtitle {
@@ -179,6 +181,52 @@ span.vault-balance-separator {
 	font-size: 3vw;
 	font-weight: 700;
 }
+
+
+.limit {
+	background: rgba(255,255,255,0.1);
+	justify-content: flex-start;
+	border-radius: 100px;
+	align-items: center;
+	position: relative;
+	padding: 0 5px;
+	display: flex;
+	height: fit-content;
+}
+.limits-title {
+	line-height: 1;
+    display: block;
+    font-size: 1.8vw;
+    font-family: Poppins, sans-serif;
+    color: #ffffff;
+}
+.limits-subtitle {
+	display: block;
+    font-size: 1.4vw;
+    font-family: Poppins, sans-serif;
+    color: #ffffffd4;
+}
+
+.limit-value {
+	box-shadow: 0 10px 40px -10px #fff;
+	border-radius: 100px;
+	background: #fff;
+	height: 15px;
+	width: 0;
+}
+.limit-value.paiement {
+	animation: loadPaiement 3s normal forwards;
+}
+.limit-value.cashout {
+	animation: loadCashout 3s normal forwards;
+}
+/*
+@keyframes load {
+	0% { width: 0; }
+	100% { width: 68%; }
+}
+*/
+
 
 
 .underlined {

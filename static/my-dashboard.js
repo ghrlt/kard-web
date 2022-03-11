@@ -78,6 +78,12 @@ $(function() {
 
 					$(".vaults").prepend(
 						`<div class="vault col" id="${c.id.slice(-10)}" style="background-color: ${c.color};">
+							<!--
+							<span class="position-absolute top-0 start-0 translate-middle p-2 bg-success rounded-circle">
+								${Math.round((c.balance.value*100)/c.goal.value)}%
+    							<span class="visually-hidden">Completion percentage</span>
+							</span>
+							-->
 							<div class="-centered">
 								<span class="vault-emote">${c.emoji.unicode}</span>
 							</div>
@@ -97,6 +103,55 @@ $(function() {
 			}
 		}
 	})
+	// Limits
+	$.ajax({
+		url: "/kard-api/getLimits",
+		method: "GET",
+		beforeSend: function(request) {
+			request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+			request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+		},
+		success: function(result) {
+			if (result.status == -1) {
+				showError(result.error)
+			} else {
+				monthlyMaxPos = result.data.legalSpendingLimits.monthlyPos.value
+				monthlyMaxAtm = result.data.legalSpendingLimits.monthlyAtm.value
+
+				if (result.data.transactionLimits.length == 0) {
+					$(".limits-subtitle").each(function() {$(this).text("Aucune limite fixée – Limites légales utilisées")})
+				} else {
+					parentSetMaxPos = result.data.transactionLimits.monthlyPos.value
+					if (parentSetMaxPos > monthlyMaxPos) {
+						monthlyMaxPos = parentSetMaxPos
+					}
+					parentSetMaxAtm = result.data.transactionLimits.monthlyAtm.value
+					if (parentSetMaxAtm > monthlyMaxAtm) {
+						monthlyMaxAtm = parentSetMaxAtm
+					}
+				}
+				spentAgainstLimitPercentage = result.data.currentSpendings.monthlyPos.value*100/monthlyMaxPos
+				cashoutAgainstLimitPercentage = result.data.currentSpendings.monthlyAtm.value*100/monthlyMaxAtm
+				
+				$(".limits-spent > .limits-progress").attr("title", `${result.data.currentSpendings.monthlyPos.value}€ dépensés sur ${monthlyMaxPos}€`)
+				$(".limits-cashout > .limits-progress").attr("title", `${result.data.currentSpendings.monthlyAtm.value}€ retirés sur ${monthlyMaxAtm}€`)
+
+				$(".limits-progress").append(
+					`<style>
+						@keyframes loadPaiement {
+							0% {width: 0;}
+							100% {width: ${spentAgainstLimitPercentage}%;}
+						}
+						@keyframes loadCashout {
+							0% {width: 0;}
+							100% {width: ${cashoutAgainstLimitPercentage}%;}
+						}
+					</style>`
+				)
+			}
+		}
+	})
+
 	// Transactions (Load 10, then lazy-load)
 	$.ajax({
 		url: "/kard-api/getTransactions",
