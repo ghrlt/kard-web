@@ -106,13 +106,12 @@ def execFunction(f, u):
 	else:
 		argsV = ''.join([])	
 
-	print(argsV)
 	try:
 		r = eval(f"u.{f}({argsV})")
-		print(r)
+		#if f == "getLimits": print(r)
 		return r
-	except:
-		return {"status": -1, "error": "Unknown path.", "data": None}
+	except Exception as e:
+		return {"status": -1, "error": str(e), "data": None}
 
 
 
