@@ -88,27 +88,22 @@ def fetch(data, u):
 	r = u.fetch(data)
 	return r
 
-@app.route("/kard-api/<f>")
+@app.route("/kard-api/<f>", methods=['GET', 'POST'])
 @get_logged_user
 def execFunction(f, u):
-	dic = request.values.get('args')
+	dic = dict(request.values)
 	if dic:
-		argsV = ', '.join( list(dic.values()) )
-		if argsV:
-			argsV = '"' + argsV + '"'
+		x = [ [k,v] for k,v in dic.items()]
+		for i,y in enumerate(x):
+		    x[i] = '="'.join(y) + '"'
 
-		if argsV:
-			for i,key in enumerate(list(dic.keys())):
-				x = argsV.split(", ")
-				x[i] = f"{key}={x[i]}"
-
-				argsV = ', '.join( x )
+		argsV = ', '.join(x)
 	else:
-		argsV = ''.join([])	
+		argsV = ''.join([])
 
 	try:
 		r = eval(f"u.{f}({argsV})")
-		if f == "getVisaInfos": print(r)
+		if f == "createVault": print(r)
 		return r
 	except Exception as e:
 		return {"status": -1, "error": str(e), "data": None}
