@@ -25,9 +25,12 @@ $(function() {
 		$("#friendstransactions-list").show()
 	})
 
+
+
 	$(".icon-shortcut").on('click', function() {
-		$("#tran")
+		loadAndDisplay($(this).attr("id").split('-')[0])
 	})
+
 
 	// Firstname
 	$.ajax({
@@ -100,58 +103,128 @@ $(function() {
 						</div>`
 					)
 				}
+				$(".vaults .loader").hide()
 			}
 		}
 	})
+
+
+	function loadAndDisplay(thing) {
+		$("#interchangeable-content > div.kard-box > div").each(function() {$(this).hide()})
+		$("#interchangeable-content > div.kard-box > div.loader").show()
+
+		if (thing == "limits") {loadAndDisplayLimits()}
+		if (thing == "mastercard") {loadAndDisplayMastercard()}
+		if (thing == "visa") {loadAndDisplayVisa()}
+		if (thing == "rib") {loadAndDisplayRib()}
+	}
+
 	// Limits
-	$.ajax({
-		url: "/kard-api/getLimits",
-		method: "GET",
-		beforeSend: function(request) {
-			request.setRequestHeader("k-device-uuid", CLIENT_UUID)
-			request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
-		},
-		success: function(result) {
-			if (result.status == -1) {
-				showError(result.error)
-			} else {
-				monthlyMaxPos = result.data.legalSpendingLimits.monthlyPos.value
-				monthlyMaxAtm = result.data.legalSpendingLimits.monthlyAtm.value
-
-				if (result.data.transactionLimits.length == 0) {
-					$(".limits-subtitle").each(function() {$(this).text("Aucune limite fixée – Limites légales utilisées")})
+	function loadAndDisplayLimits() {
+		$.ajax({
+			url: "/kard-api/getLimits",
+			method: "GET",
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				if (result.status == -1) {
+					showError(result.error)
 				} else {
-					parentSetMaxPos = result.data.transactionLimits.monthlyPos.value
-					if (parentSetMaxPos > monthlyMaxPos) {
-						monthlyMaxPos = parentSetMaxPos
+					monthlyMaxPos = result.data.legalSpendingLimits.monthlyPos.value
+					monthlyMaxAtm = result.data.legalSpendingLimits.monthlyAtm.value
+
+					if (result.data.transactionLimits.length == 0) {
+						$(".limits-subtitle").each(function() {$(this).text("Aucune limite fixée – Limites légales utilisées")})
+					} else {
+						parentSetMaxPos = result.data.transactionLimits.monthlyPos.value
+						if (parentSetMaxPos > monthlyMaxPos) {
+							monthlyMaxPos = parentSetMaxPos
+						}
+						parentSetMaxAtm = result.data.transactionLimits.monthlyAtm.value
+						if (parentSetMaxAtm > monthlyMaxAtm) {
+							monthlyMaxAtm = parentSetMaxAtm
+						}
 					}
-					parentSetMaxAtm = result.data.transactionLimits.monthlyAtm.value
-					if (parentSetMaxAtm > monthlyMaxAtm) {
-						monthlyMaxAtm = parentSetMaxAtm
-					}
+					spentAgainstLimitPercentage = result.data.currentSpendings.monthlyPos.value*100/monthlyMaxPos
+					cashoutAgainstLimitPercentage = result.data.currentSpendings.monthlyAtm.value*100/monthlyMaxAtm
+					
+					$(".limits-spent > .limits-progress").attr("title", `${result.data.currentSpendings.monthlyPos.value}€ dépensés sur ${monthlyMaxPos}€`)
+					$(".limits-cashout > .limits-progress").attr("title", `${result.data.currentSpendings.monthlyAtm.value}€ retirés sur ${monthlyMaxAtm}€`)
+
+					$(".limits-progress").append(
+						`<style>
+							@keyframes loadPaiement {
+								0% {width: 0;}
+								100% {width: ${spentAgainstLimitPercentage}%;}
+							}
+							@keyframes loadCashout {
+								0% {width: 0;}
+								100% {width: ${cashoutAgainstLimitPercentage}%;}
+							}
+						</style>`
+					)
+
+					// Hide & Display
+					$("#interchangeable-content > div.kard-box > div").each(function() {$(this).hide()})
+					$("#limits").show()
 				}
-				spentAgainstLimitPercentage = result.data.currentSpendings.monthlyPos.value*100/monthlyMaxPos
-				cashoutAgainstLimitPercentage = result.data.currentSpendings.monthlyAtm.value*100/monthlyMaxAtm
-				
-				$(".limits-spent > .limits-progress").attr("title", `${result.data.currentSpendings.monthlyPos.value}€ dépensés sur ${monthlyMaxPos}€`)
-				$(".limits-cashout > .limits-progress").attr("title", `${result.data.currentSpendings.monthlyAtm.value}€ retirés sur ${monthlyMaxAtm}€`)
-
-				$(".limits-progress").append(
-					`<style>
-						@keyframes loadPaiement {
-							0% {width: 0;}
-							100% {width: ${spentAgainstLimitPercentage}%;}
-						}
-						@keyframes loadCashout {
-							0% {width: 0;}
-							100% {width: ${cashoutAgainstLimitPercentage}%;}
-						}
-					</style>`
-				)
 			}
-		}
-	})
+		})
+	}
+	// Kard MasterCard
+	function loadAndDisplayMastercard() {
+		$.ajax({
+			url: "/kard-api/getMastercardInfos",
+			method: "GET",
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				if (result.status == -1) {
+					showError(result.error)
+				} else {
+					$("#mastercard > div > .card-number").text(result.data.visibleNumber)
+					$("#mastercard > div > .card-holder").text(result.data.name)
+					$("#mastercard").append(`<input type="hidden" value="${result.data.id}">`)
 
+					// Hide & Display
+					$("#interchangeable-content > div.kard-box > div").each(function() {$(this).hide()})
+					$("#mastercard").show()
+				}
+			}
+		})
+	}
+	// Kard Visa
+	function loadAndDisplayVisa() {
+		$.ajax({
+			url: "/kard-api/getVisaInfos",
+			method: "GET",
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				console.log('AAA')
+				if (result.status == -1) {
+					showError(result.error)
+				} else {
+					$("#visa > div > .card-number").text(result.data.visibleNumber)
+					$("#visa > div > .card-expi").text(result.data.expiration_date)
+					$("#visa > div > .card-cvv").text(result.data.cvv)
+					$("#visa > div > .card-holder").text(result.data.card_holder)
+
+					$("#visa").append(`<input type="hidden" value="${result.data.id}">`)
+					
+					// Hide & Display
+					$("#interchangeable-content > div.kard-box > div").each(function() {$(this).hide()})
+					$("#visa").show()
+				}
+			}
+		})
+	}
 	// Transactions (Load 10, then lazy-load)
 	$.ajax({
 		url: "/kard-api/getTransactions",
@@ -201,9 +274,9 @@ $(function() {
 				}
 			}
 		}
-
 	})
 
+	loadAndDisplayMastercard()
 
 
 })

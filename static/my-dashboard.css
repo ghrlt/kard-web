@@ -56,6 +56,7 @@ div.vault {
 
 	min-width: 175px;
 	width: 175px;
+	max-height: 200px;
 	
 	border-radius: 8px;
 	border: 1px #181818 solid;
@@ -229,9 +230,147 @@ span.vault-balance-separator {
 
 
 
-.underlined {
-	background-image: url(/static/imgs/underline.svg);
-    background-position: 50% 90%;
-    /*background-size: 150%;*/
-    background-repeat: no-repeat;
+.card-details.card-number {
+    top: 55%;
+    left: 7%;
+ 
+    font-size: 2.2vw;
 }
+.card-details.card-cvv {
+    top: 80%;
+    left: 65%;
+
+    font-size: 2vw;
+}
+.card-details.card-expi {
+    top: 80%;
+    left: 7%;
+
+    font-size: 2vw;
+}
+.card-details.card-holder {
+    top: 5%;
+    left: 6%;
+
+    font-weight: 500;
+    color: white!important;
+    font-size: 1.5vw;
+}
+
+
+.card-details.visa.card-number {
+    top: 40%;
+    left: 7%;
+ 
+    font-size: 2.5rem;
+}
+.card-details.visa.card-cvv {
+    top: 75%;
+    left: 50%;
+
+    font-size: 2vw;
+}
+.card-details.visa.card-expi {
+    top: 75%;
+    left: 7%;
+
+    font-size: 2vw;
+}
+.card-details.visa.card-holder {
+    top: 60%;
+    left: 7%;
+
+    font-weight: 500;
+    color: white!important;
+    font-size: 1.5vw;
+}
+
+.hide-card-details-btn {
+    font-size: 1.5vw;
+    width: 90%;
+    display: none;
+}
+.reveal-card-details-btn {
+    font-size: 1.5vw;
+    width: 90%;
+}
+
+#mastercard {
+	place-self: center;
+	place-items: center;
+}
+.card-details {
+    position: absolute;
+    color: #ffffffd6;
+    font-family: Ocra,Arial,sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+
+    cursor: pointer;
+}
+.card-details.visa {
+	-webkit-filter: blur(10px);
+	-moz-filter: blur(10px);
+	-o-filter: blur(10px);
+	-ms-filter: blur(10px);
+	filter: blur(10px);
+}
+.card-details.visa:hover {
+	-webkit-filter: blur(0px);
+	-moz-filter: blur(0px);
+	-o-filter: blur(0px);
+	-ms-filter: blur(0px);
+	filter: blur(0px);
+}
+
+
+/* Actually broke (not circle) but well, its look good so.. */
+.loader {
+	width: 100%;
+	height: 100%;
+	min-width: 100%;
+	min-height: 100%;
+
+	z-index: 100;
+}
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  margin: 8px;
+  border: 8px solid #fff;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: #fff transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
