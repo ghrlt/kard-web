@@ -52,11 +52,11 @@
 							<i class="fa-solid fa-money-check-dollar-pen"></i>
 						</div>
 					</div>
-					<div class="col col-12 row justify-content-evenly" id="user-btn">
-						<div class="col -centered icon-shortcut">
+					<div class="col col-12 row justify-content-evenly">
+						<div class="col -centered icon-shortcut" id="user-btn">
 							<i class="fa-solid fa-user"></i>
 						</div>
-						<div class="col -centered icon-shortcut" id="stats-btn">
+						<div class="col -centered icon-shortcut" id="limits-btn">
 							<i class="fa-solid fa-chart-pie"></i>
 						</div>
 					</div>
@@ -69,6 +69,11 @@
 		<div class="col col-12 row py-2">
 			<div class="col col-md-7 col-12">
 				<div class="kard-box vaults row row-no-gutter -centered">
+					<div class="loader">
+						<div class="lds-ring">
+							<div></div><div></div><div></div><div></div>
+						</div>
+					</div>
 					<div class="vault col" id="newVault-btn">
 						<div class="-centered">
 							<span class="vault-emote" style="color: #000">
@@ -83,25 +88,53 @@
 					</div>
 				</div>
 			</div>
-			<div class="col col-md-5 col-12">
+			<div class="col col-md-5 col-12" id="interchangeable-content">
 				<div class="kard-box row">
-					<div class="limits-spent">
-						<span class="limits-title paiement">Paiements</span>
-						<span class="limits-subtitle paiement"></span>
-						<div class="limits-progress">
-							<div class="limit">
-								<div class="limit-value paiement"></div>
+					<div class="loader">
+						<div class="lds-ring">
+							<div></div><div></div><div></div><div></div>
+						</div>
+					</div>
+					<div id="limits" style="display: none;">
+						<div class="limits-spent py-3">
+							<span class="limits-title paiement">Paiements</span>
+							<span class="limits-subtitle paiement"></span>
+							<div class="limits-progress">
+								<div class="limit">
+									<div class="limit-value paiement"></div>
+								</div>
+							</div>
+						</div>
+
+						<div class="limits-cashout py-3">
+							<span class="limits-title cashout">Retraits au distributeur</span>
+							<span class="limits-subtitle cashout"></span>
+							<div class="limits-progress">
+								<div class="limit">
+									<div class="limit-value cashout"></div>
+								</div>
 							</div>
 						</div>
 					</div>
-
-					<div class="limits-cashout">
-						<span class="limits-title cashout">Retraits au distributeur</span>
-						<span class="limits-subtitle cashout"></span>
-						<div class="limits-progress">
-							<div class="limit">
-								<div class="limit-value cashout"></div>
-							</div>
+					<div id="mastercard" style="display: none;">
+						<!-- implement pin reveal -->
+						<div style="position: relative; width: fit-content;">	
+							<img src="{{url_for('static', filename='imgs/kard_mastercard.png')}}"
+									style="width: 100%;">
+							<span class="card-details card-number"></span>
+							<span class="card-details card-cvv">***</span>
+							<span class="card-details card-expi">**/**</span>
+							<span class="card-details card-holder"></span>
+						</div>
+					</div>
+					<div id="visa" style="display: none; text-align: -webkit-center;">
+						<div style="position: relative; width: fit-content;">	
+							<img src="{{url_for('static', filename='imgs/kard_visa.png')}}"
+									style="width: 100%;">
+							<span class="card-details visa card-number"></span>
+							<span class="card-details visa card-cvv">***</span>
+							<span class="card-details visa card-expi">**/**</span>
+							<span class="card-details visa card-holder"></span>
 						</div>
 					</div>
 				</div>
@@ -158,8 +191,6 @@
 
 	
 </div>
-
-<span id="firstname"></span>
 
 
 <!--
