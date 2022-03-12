@@ -7,7 +7,7 @@ $(function() {
 	}
 
 	function showError(err) {
-		alert(err)
+		alertify.error(err)
 	}
 
 	$("#selftransactions-btn").on('click', function() {
@@ -29,6 +29,31 @@ $(function() {
 
 	$(".icon-shortcut").on('click', function() {
 		loadAndDisplay($(this).attr("id").split('-')[0])
+	})
+
+	$("#newVault-btn").on('click', function() {
+		// TODO: Let user custom the vault before creation
+
+		$.ajax({
+			url: "/kard-api/createVault",
+			method: "POST",
+			data: {
+				"name": "KardWeb",
+				"goal": 420
+			},
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				if (result.status == -1) {
+					showError(result.error);
+				} else {
+					loadAndDisplayVaults()
+					alertify.success('Vault successfully created!');
+				}
+			}
+		})
 	})
 
 
@@ -64,50 +89,6 @@ $(function() {
 			}
 		}
 	})
-	// Vaults
-	$.ajax({
-		url: "/kard-api/getVaults",
-		method: "GET",
-		beforeSend: function(request) {
-			request.setRequestHeader("k-device-uuid", CLIENT_UUID)
-			request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
-		},
-		success: function(result) {
-			if (result.status == -1) {
-				showError(result.error);
-			} else {
-				for (let i=0;i<result.data.vaults.length;i++) {
-					c = result.data.vaults[i]
-
-					$(".vaults").prepend(
-						`<div class="vault col" id="${c.id.slice(-10)}" style="background-color: ${c.color};">
-							<!--
-							<span class="position-absolute top-0 start-0 translate-middle p-2 bg-success rounded-circle">
-								${Math.round((c.balance.value*100)/c.goal.value)}%
-    							<span class="visually-hidden">Completion percentage</span>
-							</span>
-							-->
-							<div class="-centered">
-								<span class="vault-emote">${c.emoji.unicode}</span>
-							</div>
-							<div class="-centered pt-2">
-								<span class="kard-title -black">${c.name}</span>
-							</div>
-							<div class="-centered">
-								<span class="kard-text">
-									<span class="vault-in">${c.balance.value}€</span>
-									<span class="vault-balance-separator"> / </span>
-									<span class="vault-goal">${c.goal.value}€</span>
-								</span>
-							</div>
-						</div>`
-					)
-				}
-				$(".vaults .loader").hide()
-			}
-		}
-	})
-
 
 	function loadAndDisplay(thing) {
 		$("#interchangeable-content > div.kard-box > div").each(function() {$(this).hide()})
@@ -119,6 +100,54 @@ $(function() {
 		if (thing == "rib") {loadAndDisplayRib()}
 	}
 
+	// Vaults
+	function loadAndDisplayVaults() {
+		$(".vault.a").each(function() {$(this).remove()})
+		$(".vaults .loader").show()
+
+		$.ajax({
+			url: "/kard-api/getVaults",
+			method: "GET",
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				if (result.status == -1) {
+					showError(result.error);
+				} else {
+					for (let i=0;i<result.data.vaults.length;i++) {
+						c = result.data.vaults[i]
+
+						$(".vaults").prepend(
+							`<div class="vault a col" id="${c.id.slice(-10)}" style="background-color: ${c.color};">
+								<!--
+								<span class="position-absolute top-0 start-0 translate-middle p-2 bg-success rounded-circle">
+									${Math.round((c.balance.value*100)/c.goal.value)}%
+	    							<span class="visually-hidden">Completion percentage</span>
+								</span>
+								-->
+								<div class="-centered">
+									<span class="vault-emote">${c.emoji.unicode}</span>
+								</div>
+								<div class="-centered pt-2">
+									<span class="kard-title -black">${c.name}</span>
+								</div>
+								<div class="-centered">
+									<span class="kard-text">
+										<span class="vault-in">${c.balance.value}€</span>
+										<span class="vault-balance-separator"> / </span>
+										<span class="vault-goal">${c.goal.value}€</span>
+									</span>
+								</div>
+							</div>`
+						)
+					}
+					$(".vaults .loader").hide()
+				}
+			}
+		})
+	}
 	// Limits
 	function loadAndDisplayLimits() {
 		$.ajax({
@@ -207,11 +236,10 @@ $(function() {
 				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
 			},
 			success: function(result) {
-				console.log('AAA')
 				if (result.status == -1) {
 					showError(result.error)
 				} else {
-					$("#visa > div > .card-number").text(result.data.visibleNumber)
+					$("#visa > div > .card-number").text(result.data.card_number)
 					$("#visa > div > .card-expi").text(result.data.expiration_date)
 					$("#visa > div > .card-cvv").text(result.data.cvv)
 					$("#visa > div > .card-holder").text(result.data.card_holder)
@@ -229,7 +257,7 @@ $(function() {
 	$.ajax({
 		url: "/kard-api/getTransactions",
 		method: "GET",
-		data: {"args": {"maxi": "10"}},
+		data: {"maxi": "10"},
 		beforeSend: function(request) {
 			request.setRequestHeader("k-device-uuid", CLIENT_UUID)
 			request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
@@ -276,6 +304,7 @@ $(function() {
 		}
 	})
 
+	loadAndDisplayVaults()
 	loadAndDisplayMastercard()
 
 

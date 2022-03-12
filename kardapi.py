@@ -248,17 +248,36 @@ class KardCustomApi:
   			"extensions": {}
 		}
 		r = self.postReq(payload)
-		card['url_to_get_details'] = r['data']['urlToGetPan']['url']
+		
+		headers = self.s.headers
+		try: del headers['content-length'] #THIS is the headers that made the request goes infinite
+		except: pass
+		r = self.s.get(r['data']['urlToGetPan']['url'], headers=headers).json()
 
-		#card['card_number'] = r['card_pan']
-		#card['cvv'] = r['card_cvv2']
-		#card['expiration_date'] = '/'.join(reversed([x[-2:] for x in r['card_exp_date'].strip('-')[:2]]))
+		x = r['card_pan']
+		card['card_number'] = ' '.join([x[0:4],x[4:8],x[8:12],x[12:16]])
+		card['cvv'] = r['card_cvc2']
+		card['expiration_date'] = '/'.join(reversed([x[-2:] for x in r['card_exp_date'].split('-')[:2]]))
 
 		return {"status": 0, "error": None, "data": card}
 
 	def getKycStatus(self):
 		payload = ""
 		r = self.postReq(payload)
+
+
+
+
+	def createVault(self, name: str, goal: str|int):
+		payload = {
+			"query": "mutation androidCreateVault($goal: AmountInput!, $name: Name!) { createVault(input: {goal: $goal, name: $name}) { errors { message path } vault { id } }}",
+			"variables": {"goal": {"value": float(str(goal)), "currency": "EUR"}, "name": name},
+			"extensions":{}
+		}
+		r = self.postReq(payload)
+
+
+		return {"status": 0, "error": None, "data": r}
 
 
 
