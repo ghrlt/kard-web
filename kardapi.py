@@ -213,6 +213,49 @@ class KardCustomApi:
 
 		return {"status": 0, "error": None, "data": r}
 
+	def getMastercardInfos(self):
+		payload = {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { cards { nodes { ... Card_CardParts }}}\n\nfragment Card_CardParts on Card { __typename id activatedAt customText name visibleNumber blocked ... on PhysicalCard { atm contactless swipe online design }}","variables":{},"extensions":{}}
+		r = self.postReq(payload)
+
+		for card in r['data']['me']['cards']['nodes']:
+			if card['__typename'] == "PhysicalCard":
+				break
+
+		return {"status": 0, "error": None, "data": card}
+
+	def getMastercardPin(self, card_id: str):
+		payload = {"query": "query androidUrlToGetPin($cardId: ID!) { urlToGetPin(cardId: $cardId) { url }}","variables": {"cardId": card_id},"extensions": {}}
+		r = self.postReq(payload)
+
+		r = self.s.get(r['data']['urlToGetPin']['url']).json()
+
+		return {"status": 0, "error": None, "data": {"pin": r['card_pin']}}
+	
+	def getVisaInfos(self):
+		payload = {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { cards { nodes { ... Card_CardParts }}}\n\nfragment Card_CardParts on Card { __typename id activatedAt customText name visibleNumber blocked ... on PhysicalCard { atm contactless swipe online design }}","variables":{},"extensions":{}}
+		r = self.postReq(payload)
+
+		for card in r['data']['me']['cards']['nodes']:
+			if card['__typename'] == "VirtualCard":
+				break
+
+
+		payload = {
+			"query": "query androidUrlToGetPan($cardId: ID!) { urlToGetPan(cardId: $cardId) { url }}",
+			"variables": {
+			    "cardId": card['id']
+  			},
+  			"extensions": {}
+		}
+		r = self.postReq(payload)
+		card['url_to_get_details'] = r['data']['urlToGetPan']['url']
+
+		#card['card_number'] = r['card_pan']
+		#card['cvv'] = r['card_cvv2']
+		#card['expiration_date'] = '/'.join(reversed([x[-2:] for x in r['card_exp_date'].strip('-')[:2]]))
+
+		return {"status": 0, "error": None, "data": card}
+
 	def getKycStatus(self):
 		payload = ""
 		r = self.postReq(payload)

@@ -108,7 +108,7 @@ def execFunction(f, u):
 
 	try:
 		r = eval(f"u.{f}({argsV})")
-		#if f == "getLimits": print(r)
+		if f == "getVisaInfos": print(r)
 		return r
 	except Exception as e:
 		return {"status": -1, "error": str(e), "data": None}
