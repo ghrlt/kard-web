@@ -57,6 +57,52 @@ $(function() {
 	})
 
 
+	$(".rib.copyiban-btn").on('click', function() {
+			var temp = $("<div>")
+			$("body").prepend(temp)
+			temp.attr("contenteditable", true)
+   			temp.html($(".rib.iban").text()).select()
+	    	temp.on("focus", function() {
+	    		document.execCommand('selectAll',false,null)
+	    	})
+    		temp.focus()
+			document.execCommand("copy")
+			temp.remove()
+	})
+
+	$(".rib.download").on('click', function() {
+		$.ajax({
+			url: "/kard-api/downloadRib",
+			method: "GET",
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				if (result.status == -1) {
+					showError(result.error)
+				} else {
+					pdfFile = new Blob([result], {type: "application/pdf"})
+					var a = document.createElement('a');
+					var url = window.URL.createObjectURL(pdfFile);
+					a.href = url;
+					a.download = 'YourKardRIB.pdf';
+					document.body.append(a);
+					a.click();
+					a.remove();
+					window.URL.revokeObjectURL(url);
+				}
+			},
+			error: function(result) {
+				console.log(result)
+			}	
+		})
+	})
+
+	$(".toggleCheckbox.disabled").on('click', function(e) {
+		e.preventDefault();
+	})
+
 	// Firstname
 	$.ajax({
 		url: "/kard-api/fetch/firstname",
@@ -196,6 +242,42 @@ $(function() {
 						</style>`
 					)
 
+					authorizations = result.data.transactionAuthorizations
+					for (let i=0; i<authorizations.length;i++) {
+						auth = authorizations[i]
+						if (auth.authorizationType == "ATM") {
+							check = $(".check.allowcashout")
+							if (auth.isAuthorized == true) {
+								check.css("color", "#0F0")
+								check.html('<i class="fa-duotone fa-check"></i>')
+							} else {
+								check.css("color", "#F00")
+								check.html('<i class="fa-regular fa-circle-xmark"></i>')
+							}
+						}
+						if (auth.authorizationType == "ONLINE") {
+							check = $(".check.onlinepay")
+							if (auth.isAuthorized == true) {
+								check.css("color", "#0F0")
+								check.html('<i class="fa-duotone fa-check"></i>')
+							} else {
+								check.css("color", "#F00")
+								check.html('<i class="fa-regular fa-circle-xmark"></i>')
+							}
+						}
+						if (auth.authorizationType == "INTERNATIONAL") {
+							check = $(".check.international")
+							if (auth.isAuthorized == true) {
+								check.css("color", "#0F0")
+								check.html('<i class="fa-duotone fa-check"></i>')
+							} else {
+								check.css("color", "#F00")
+								check.html('<i class="fa-regular fa-circle-xmark"></i>')
+							}
+						}
+					}
+
+
 					// Hide & Display
 					$("#interchangeable-content > div.kard-box > div").each(function() {$(this).hide()})
 					$("#limits").show()
@@ -281,48 +363,6 @@ $(function() {
 		})
 	}
 
-	$(".rib.copyiban-btn").on('click', function() {
-			var temp = $("<div>")
-			$("body").prepend(temp)
-			temp.attr("contenteditable", true)
-   			temp.html($(".rib.iban").text()).select()
-	    	temp.on("focus", function() {
-	    		document.execCommand('selectAll',false,null)
-	    	})
-    		temp.focus()
-			document.execCommand("copy")
-			temp.remove()
-	})
-
-	$(".rib.download").on('click', function() {
-		$.ajax({
-			url: "/kard-api/downloadRib",
-			method: "GET",
-			beforeSend: function(request) {
-				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
-				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
-			},
-			success: function(result) {
-				if (result.status == -1) {
-					showError(result.error)
-				} else {
-					pdfFile = new Blob([result], {type: "application/pdf"})
-					var a = document.createElement('a');
-					var url = window.URL.createObjectURL(pdfFile);
-					a.href = url;
-					a.download = 'YourKardRIB.pdf';
-					document.body.append(a);
-					a.click();
-					a.remove();
-					window.URL.revokeObjectURL(url);
-				}
-			},
-			error: function(result) {
-				console.log(result)
-			}	
-		})
-	})
-
 
 	// Transactions (Load 10, then lazy-load)
 	$.ajax({
@@ -376,7 +416,7 @@ $(function() {
 	})
 
 	loadAndDisplayVaults()
-	loadAndDisplayRib()
+	loadAndDisplayLimits()
 
 
 })
