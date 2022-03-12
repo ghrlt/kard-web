@@ -148,6 +148,7 @@ $(function() {
 			}
 		})
 	}
+
 	// Limits
 	function loadAndDisplayLimits() {
 		$.ajax({
@@ -253,6 +254,76 @@ $(function() {
 			}
 		})
 	}
+	// Kard RIB
+	function loadAndDisplayRib() {
+		$.ajax({
+			url: "/kard-api/getRibInfos",
+			method: "GET",
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				if (result.status == -1) {
+					showError(result.error)
+				} else {
+					console.log(result.data)
+					$("#rib").append(`<input type="hidden" value="${result.data.id}">`)
+					$(".rib.iban").text(result.data.iban)
+					$(".rib.bic").text(result.data.bic)
+					$(".rib.user").text(result.data.user.firstName + ' ' + result.data.user.lastName)
+					
+					// Hide & Display
+					$("#interchangeable-content > div.kard-box > div").each(function() {$(this).hide()})
+					$("#rib").show()
+				}
+			}
+		})
+	}
+
+	$(".rib.copyiban-btn").on('click', function() {
+			var temp = $("<div>")
+			$("body").prepend(temp)
+			temp.attr("contenteditable", true)
+   			temp.html($(".rib.iban").text()).select()
+	    	temp.on("focus", function() {
+	    		document.execCommand('selectAll',false,null)
+	    	})
+    		temp.focus()
+			document.execCommand("copy")
+			temp.remove()
+	})
+
+	$(".rib.download").on('click', function() {
+		$.ajax({
+			url: "/kard-api/downloadRib",
+			method: "GET",
+			beforeSend: function(request) {
+				request.setRequestHeader("k-device-uuid", CLIENT_UUID)
+				request.setRequestHeader("k-authorization-token", CLIENT_TOKEN)
+			},
+			success: function(result) {
+				if (result.status == -1) {
+					showError(result.error)
+				} else {
+					pdfFile = new Blob([result], {type: "application/pdf"})
+					var a = document.createElement('a');
+					var url = window.URL.createObjectURL(pdfFile);
+					a.href = url;
+					a.download = 'YourKardRIB.pdf';
+					document.body.append(a);
+					a.click();
+					a.remove();
+					window.URL.revokeObjectURL(url);
+				}
+			},
+			error: function(result) {
+				console.log(result)
+			}	
+		})
+	})
+
+
 	// Transactions (Load 10, then lazy-load)
 	$.ajax({
 		url: "/kard-api/getTransactions",
@@ -305,7 +376,7 @@ $(function() {
 	})
 
 	loadAndDisplayVaults()
-	loadAndDisplayMastercard()
+	loadAndDisplayRib()
 
 
 })

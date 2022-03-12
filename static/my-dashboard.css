@@ -324,6 +324,76 @@ span.vault-balance-separator {
 }
 
 
+.rib {
+	font-size: 2vw;
+	color:  black;
+	font-weight: 700;
+	font-family: Poppins;
+}
+.rib.user {
+	font-size: 3vw;
+	color: #ededed;
+}
+
+.rib.subtitle {
+	font-size: 1vw;
+	color: #a1a1a1;
+	display: block;
+	line-height: .5;
+	margin-top: 5%;
+}
+.rib.u.subtitle {
+	color: #1c1c1c;
+	margin: 0;
+}
+
+img.rib {
+	width: 5vw;
+}
+#rib-user {
+	position: relative;
+	top: -10%;
+}
+.rib.copyiban-btn {
+	text-decoration: none;
+	background: -webkit-linear-gradient(#8b33e3, #9b37ff);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.rib.copyiban-btn:hover {
+	text-decoration: underline;
+}
+.rib.download.kard-btn {
+	background-color: #9123ff;
+	color: #fff;
+}
+
+.rib-top {
+    background: rgb(102,0,203);
+    /*background: linear-gradient(
+    				90deg,
+    				rgba(102,0,203,1) 0%,
+    				rgba(115,0,230,1) 28%,
+    				rgba(120,0,240,1) 45%,
+    				rgba(186,117,255,1) 82%
+
+    );*/
+    border-radius: 10px 10px 0 0;
+    padding: 2%;
+}
+.rib-bottom {
+	background: #fff0fe;
+	/*background: linear-gradient(
+					180deg,
+					rgba(255,203,250,1) 8%,
+					rgba(255,233,255,1) 61%,
+					rgba(255,255,255,1) 100%
+	);*/
+	border-radius: 0 0 10px 10px;
+	padding: 2%;
+}
+
+
 /* Actually broke (not circle) but well, its look good so.. */
 .loader {
 	width: 100%;
