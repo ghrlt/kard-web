@@ -1,5 +1,6 @@
 import requests
 import json
+from flask import send_file
 
 class KardCustomApi:
 	API_URL = "https://api.kard.eu/graphql"
@@ -260,6 +261,20 @@ class KardCustomApi:
 		card['expiration_date'] = '/'.join(reversed([x[-2:] for x in r['card_exp_date'].split('-')[:2]]))
 
 		return {"status": 0, "error": None, "data": card}
+
+	def getRibInfos(self):
+		payload = {"query":"query androidMe { me { ... Me_MeParts }}\n\nfragment Me_MeParts on Me { bankAccount { id iban bic user { firstName lastName } }}","variables":{},"extensions":{}}
+		r = self.postReq(payload)
+
+		r['data']['me']['bankAccount']['download_pdf'] = f"https://api.kard.eu/bank_account_details/{r['data']['me']['bankAccount']['id']}.pdf"
+		return {"status": 0, "error": None, "data": r['data']['me']['bankAccount']}
+
+	def downloadRib(self):
+		headers = self.s.headers
+		try: del headers['content-length'] #THIS is the headers that made the request goes infinite
+		except: pass
+		return self.s.get(self.getRibInfos()['data']['download_pdf'], headers=headers).content
+
 
 	def getKycStatus(self):
 		payload = ""
